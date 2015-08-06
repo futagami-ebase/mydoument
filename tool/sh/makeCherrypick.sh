@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # git cherry-pick実行ファイル作成スクリプト
-# 例) ./makeCherrypick.sh [git logのオプション]を実行で
+# ./makeCherrypick.sh [git logのオプション] の実行で
 # 　カレントディレクトリにcherry pickするための実行ファイルを生成する
 # 　・cherry pickするコミット番号はgit logで出力した内容
 # 　・オプション未指定の場合は全ログを出力
