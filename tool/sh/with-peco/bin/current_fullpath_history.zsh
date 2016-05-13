@@ -20,7 +20,7 @@ add-zsh-hook chpwd _add_current_fullpath_history
 function _local_current_fullpath_history {
   local selected_path=$(sqlite3 ${FULLPATH_HISTORY_DB} "select fullpath from main_data;" | tail -r | peco)
   if [ -n "$selected_path" ]; then
-    BUFFER="cd ${selected_path}"
+    BUFFER=$BUFFER" ${selected_path}"
     CURSOR=$#BUFFER
   fi
 }
