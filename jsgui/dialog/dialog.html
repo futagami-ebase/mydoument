@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>翻訳結果</title>
+	<style>
+		body {
+			background-color: #C0C0C0
+		}
+		.original-text {
+			font-weight: bold;
+			font-size: small;
+			margin: 0px;
+		}
+		ul.translated-results {
+			list-style: none;
+			font-size: small;
+			padding-left: 0px;
+			margin: 0px;
+		}
+		.button-area {
+			float: right;
+		}
+		button.simple {
+			font-size: small;
+			width: 80px;
+			height: 20px;
+			padding: 0px;
+			background-color: white;
+			border-radius: 5px;
+		}
+		button.simple:focus {
+			color: white;
+			background-color: #2196F3;
+			-webkit-writing-mode: horizontal-bt;
+		}
+	</style>
+</head>
+<body>
+<div id="contents">
+	<p class="original-text">Keep a global reference of the window object,</p>
+	<ul class="translated-results">
+		<li class="translated-text">1. ウインドウ物の世界的な引用を保管してください、</li>
+		<li class="translated-text">2. ウインドウ物の世界的な参照を保ってください、</li>
+		<li class="translated-text">3. ウインドウ物の世界的な引用を保管します、</li>
+		<li class="translated-text">4. ウインドウ物の世界的な言及を保ってください。</li>
+	</ul>
+	<div class="button-area"><button id="js-quit-button" class="simple" type="button">OK</button></div>
+</div>
+
+</body>
+<script>
+var {ipcRenderer} = require("electron");
+
+document.getElementById("js-quit-button").focus();
+
+// ボタンクリック時処理
+document.getElementById("js-quit-button").addEventListener('click', (e) => {
+	ipcRenderer.send('quit');
+}, false)
+// 移動処理
+document.addEventListener('mousedown', (e) => {
+	if (e.which !== 1) return;
+	ipcRenderer.send('mouse-down', e.clientX, e.clientY);
+}, false);
+document.addEventListener('mousemove', (e) => {
+	if (e.which !== 1) return;
+	ipcRenderer.send('mouse-move', e.screenX, e.screenY);
+}, false);
+
+</script>
+</html>
