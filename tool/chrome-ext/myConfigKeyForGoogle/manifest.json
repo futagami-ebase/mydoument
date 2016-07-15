@@ -3,16 +3,16 @@
   "description": "Set bind key to google search page simplicity.",
   "version": "1.0",
   "manifest_version": 2,
-  "background": {
+  "background": { },
+  "page_action": {
+    "default_popup": "page_action.html"
   },
-  "page_action": { },
-  "commands": {
-  },
+  "commands": { },
   "content_scripts": [
     {
       "matches": ["https://www.google.com/*","https://www.google.co.jp/*"],
       "css": [],
-      "js": []
+      "js": ["shortCutKeys.js"]
     }
   ]
 }
