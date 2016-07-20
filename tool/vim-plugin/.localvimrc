@@ -16,17 +16,17 @@ function! s:Filter_lines(cmd, filter)
   let &more = save_more
   10new
   setlocal buftype=nofile bufhidden=hide noswapfile
-  put=lines
+  silent put=lines
   g/^\s*$/d
-  %s/^\s*\d\+:\s*//e
+  silent %s/^\s*\d\+:\s*//e
   if !empty(a:filter)
-    execute 'v/' . a:filter . '/d'
+    silent execute 'v/' . a:filter . '/d'
   endif
   0
 endfunction
 
 " 開発中プラグイン設定
-command! Meset !cp -rf %:h/dev/*.vim ~/.vim/dev/
+command! Meset !cp -rf `pwd`/dev/*.vim ~/.vim/dev/
 " 開発中プラグイン除去
 command! Medel !rm -rf ~/.vim/dev/*.vim
 " 開発中プラグイン読込確認
@@ -35,4 +35,3 @@ command! Mecheck call s:Filter_lines('scriptnames', '\/.vim\/dev')
 "comment out
 map <space>/ :s;^;" ;<CR>:noh<CR>
 map <space>: :s;^" ;;<CR>:noh<CR>
-

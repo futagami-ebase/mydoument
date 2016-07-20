@@ -38,4 +38,21 @@
 " 8.ctrl-hで移動を一つ戻る, ctrl-lで移動を(ctrl-hで進んだ分)進める
 " 9.Enter or ESCキーで入力待ち状態解除
 "
-execute "normal fn"
+if exists("g:loaded_ext_f")
+  finish
+endif
+let g:loaded_ext_f = 1
+let s:save_cpo = &cpo
+set cpo&vim
+
+" 処理記載
+" sample start
+fu! s:Done(line)
+  echo a:line
+endf
+
+command! -nargs=0 MyTaskToggle call s:Done(getline('4'))
+" sample end
+
+let &cpo = s:save_cpo
+unlet s:save_cpo
