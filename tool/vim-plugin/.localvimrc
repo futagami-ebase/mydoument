@@ -1,2 +1,38 @@
 "プラグイン開発用ディレクトリ読み込みを有効化
 let g:is_set_dev_plugin=1
+
+" http://vim.wikia.com/wiki/List_loaded_scripts から
+" Execute 'cmd' while redirecting output.
+" Delete all lines that do not match regex 'filter' (if not empty).
+" Delete any blank lines.
+" Delete '<whitespace><number>:<whitespace>' from start of each line.
+" Display result in a scratch buffer.
+function! s:Filter_lines(cmd, filter)
+  let save_more = &more
+  set nomore
+  redir => lines
+  silent execute a:cmd
+  redir END
+  let &more = save_more
+  10new
+  setlocal buftype=nofile bufhidden=hide noswapfile
+  put=lines
+  g/^\s*$/d
+  %s/^\s*\d\+:\s*//e
+  if !empty(a:filter)
+    execute 'v/' . a:filter . '/d'
+  endif
+  0
+endfunction
+
+" 開発中プラグイン設定
+command! Meset !cp -rf %:h/dev/*.vim ~/.vim/dev/
+" 開発中プラグイン除去
+command! Medel !rm -rf ~/.vim/dev/*.vim
+" 開発中プラグイン読込確認
+command! Mecheck call s:Filter_lines('scriptnames', '\/.vim\/dev')
+
+"comment out
+map <space>/ :s;^;" ;<CR>:noh<CR>
+map <space>: :s;^" ;;<CR>:noh<CR>
+
