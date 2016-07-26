@@ -35,3 +35,6 @@ command! Mecheck call s:Filter_lines('scriptnames', '\/.vim\/dev')
 "comment out
 map <space>/ :s;^;" ;<CR>:noh<CR>
 map <space>: :s;^" ;;<CR>:noh<CR>
+
+"sandbox用ファイル読込
+source ./sandbox.vimrc
