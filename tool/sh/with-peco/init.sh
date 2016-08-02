@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-MY_PECO_TOOLS_DIR=$(dirname $0)
+MY_PECO_TOOLS_DIR=$(builtin cd $(dirname $0);pwd)
 
 . ${MY_PECO_TOOLS_DIR}/bin/command_history.sh
 . ${MY_PECO_TOOLS_DIR}/bin/chrome_history.sh
