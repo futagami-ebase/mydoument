@@ -12,7 +12,7 @@ exefilename='git_cherrypick.sh';
 ops=$@;
 
 # 定型文入力
-echo "#!/bin/bash" > ${exefilename};
+echo "#!/bin/bash -e" > ${exefilename};
 echo "" >> ${exefilename};
 
 # git logからコミットハッシュ値を抽出し、コマンド文を入力
