@@ -3,7 +3,7 @@
 # git cherry-pick実行ファイル作成スクリプト
 # ./makeCherrypick.sh [git logのオプション] の実行で
 # 　カレントディレクトリにcherry pickするための実行ファイルを生成する
-# 　・cherry pickするコミット番号はgit logで出力した内容
+# 　・cherry pickするコミットハッシュ値はgit logで出力した内容
 # 　・オプション未指定の場合は全ログを出力
 # 　・生成する実行ファイル名は「変数：exefilename」で指定した文字列
 # 　・生成する実行ファイルが存在している場合は上書きする
@@ -15,7 +15,7 @@ ops=$@;
 echo "#!/bin/bash" > ${exefilename};
 echo "" >> ${exefilename};
 
-# git logからコミット番号を抽出し、コマンド文を入力
+# git logからコミットハッシュ値を抽出し、コマンド文を入力
 if [ -n "${ops}" ]; then
   git log --reverse ${ops} | sed 's/^/#/' | sed 's/#commit/git cherry-pick/' >> ${exefilename};
 else
