@@ -1,0 +1,3 @@
+define(`X', `Big NEWS...
+NeWS')
+X is Window System of UNIX.
