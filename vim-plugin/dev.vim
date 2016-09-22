@@ -1,9 +1,9 @@
 "---------------------------------------------------
-" Ext F
+" Ext F Move
 "---------------------------------------------------
 "
 " ========================================
-" start 'ext f mode' key
+" start 'ext f move mode' key
 " f or g:ext_f_move_ defined by .vimrc
 "
 " If you don't need this function,
@@ -11,20 +11,22 @@
 "
 " let g:ext_f_move_enable
 "
-" keymap of [f mode]
+" keymap of [f move mode]
 " <C-F> : orientation switch key
-" <Enter> or <Esc> : End ext f mode
+" <Enter> or <Esc> : End ext f move mode
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-" default start ext f mode key
+" default start ext f move mode key
 let s:default_start_key = 'f'
+let s:default_start_reverse_key = 'F'
 
 " If you define 'g:ext_f_move_start_key' in .vimrc, 
 " will be started resize window by 'g:win_resizer_start_key' 
-let g:ext_f_move_start_key = get(g:, 'ext_f_move_start_key', s:default_start_key)
-let g:ext_f_move_enable    = get(g:, 'ext_f_move_enable', 1)
+let g:ext_f_move_start_key         = get(g:, 'ext_f_move_start_key', s:default_start_key)
+let g:ext_f_move_start_reverse_key = get(g:, 'ext_f_move_start_reverse_key', s:default_start_reverse_key)
+let g:ext_f_move_enable            = get(g:, 'ext_f_move_enable', 1)
 
 " ext f mode key mapping
 let s:default_keycode = {
@@ -40,16 +42,20 @@ let g:ext_f_move_keycode_escape = get(g:, 'ext_f_move_keycode_escape', s:default
 " if <ESC> key downed, ext f mode
 let g:ext_f_move_finish_with_escape = get(g:, 'ext_f_move_finish_with_escape', 1)
 
-exe 'nnoremap ' . g:ext_f_move_start_key . ' :call ExtFMoveStart()<CR>'
+exe 'nnoremap ' . g:ext_f_move_start_key . ' :call ExtFMoveStart(0)<CR>'
+exe 'nnoremap ' . g:ext_f_move_start_reverse_key . ' :call ExtFMoveStart(1)<CR>'
 
-fun! ExtFMoveStart()
+let s:is_reverse = 0
+
+function! ExtFMoveStart(is_rev)
   if g:ext_f_move_enable == 0
     return
   endif
+  let s:is_reverse = a:is_rev
 
   call s:startFMove()
 
-endfun
+endfunction
 
 " Note:
 " \x80\xfd` seems to be sent by a terminal.
@@ -63,29 +69,40 @@ function! s:getchar()
     endwhile
 endfunction
 
+function! s:showModeMessage()
+    if s:is_reverse == 0
+      echo '[f move mode]... "'.s:label_finish.'": End'
+    else
+      echo '[F move mode]... "'.s:label_finish.'": End'
+    endif
+endfunction
 
 function! s:startFMove()
 
   highlight FMoveCursorColor ctermbg=green
 
-  echo '[F move mode]... "'.s:label_finish.'": End'
-
   while 1
+    call s:showModeMessage()
+
     let c = s:getchar()
     let m = matchadd("FMoveCursorColor", '\%#', -1)
 
     if c == g:ext_f_move_keycode_finish || (g:ext_f_move_finish_with_escape == 1 && c == g:ext_f_move_keycode_escape)
-      echo ""
       break
-    else
-      exe 'normal! f' . s:getKeyAlias(c)
-      redraw
     endif
+
+    if c == g:ext_f_move_keycode_switch
+      let s:is_reverse = !s:is_reverse
+    endif
+    exe 'normal! ' . (!s:is_reverse ? 'f' : 'F') . s:getKeyAlias(c)
+
+    redraw
   endwhile
 
-  redraw
+  echo ""
   call matchdelete(m)
   highlight clear FMoveCursorColor
+  redraw
 endfunction
 
 
