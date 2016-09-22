@@ -40,7 +40,7 @@ let g:ext_f_move_keycode_escape = get(g:, 'ext_f_move_keycode_escape', s:default
 " if <ESC> key downed, ext f mode
 let g:ext_f_move_finish_with_escape = get(g:, 'ext_f_move_finish_with_escape', 1)
 
-exe 'noremap ' . g:ext_f_move_start_key . ' :call ExtFMoveStart()<CR>'
+exe 'nnoremap ' . g:ext_f_move_start_key . ' :call ExtFMoveStart()<CR>'
 
 fun! ExtFMoveStart()
   if g:ext_f_move_enable == 0
@@ -51,23 +51,42 @@ fun! ExtFMoveStart()
 
 endfun
 
-fun! s:startFMove()
+" Note:
+" \x80\xfd` seems to be sent by a terminal.
+" Below is a workaround for the sequence.
+function! s:getchar()
+    while 1
+        let cn = getchar()
+        if type(cn) != type('') || cn !=# "\x80\xfd`"
+            return cn
+        endif
+    endwhile
+endfunction
+
+
+function! s:startFMove()
+
+  highlight FMoveCursorColor ctermbg=green
 
   echo '[F move mode]... "'.s:label_finish.'": End'
-  while 1
 
-    let c = getchar()
+  while 1
+    let c = s:getchar()
+    let m = matchadd("FMoveCursorColor", '\%#', -1)
 
     if c == g:ext_f_move_keycode_finish || (g:ext_f_move_finish_with_escape == 1 && c == g:ext_f_move_keycode_escape)
       echo ""
-      redraw
       break
     else
       exe 'normal! f' . s:getKeyAlias(c)
       redraw
     endif
   endwhile
-endfun
+
+  redraw
+  call matchdelete(m)
+  highlight clear FMoveCursorColor
+endfunction
 
 
 fun! s:getKeyAlias(code)
