@@ -43,7 +43,8 @@ let g:ext_f_move_keycode_escape = get(g:, 'ext_f_move_keycode_escape', s:default
 let g:ext_f_move_finish_with_escape = get(g:, 'ext_f_move_finish_with_escape', 1)
 
 let s:is_reverse   = 0
-let s:current_mode = ""
+let s:current_mode = "n"
+let s:operator     = ""
 
 " Note:
 " \x80\xfd` seems to be sent by a terminal.
@@ -67,8 +68,10 @@ endfunction
 
 exe 'nnoremap ' . g:ext_small_f_move_start_key . ' :call ExtFMoveStart(0, "n")<CR>'
 exe 'nnoremap ' . g:ext_large_f_move_start_key . ' :call ExtFMoveStart(1, "n")<CR>'
-exe 'vnoremap ' . g:ext_small_f_move_start_key . ' :call ExtFMoveStart(0, "v")<CR>'
-exe 'vnoremap ' . g:ext_large_f_move_start_key . ' :call ExtFMoveStart(1, "v")<CR>'
+exe 'xnoremap ' . g:ext_small_f_move_start_key . ' :call ExtFMoveStart(0, "v")<CR>'
+exe 'xnoremap ' . g:ext_large_f_move_start_key . ' :call ExtFMoveStart(1, "v")<CR>'
+exe 'onoremap ' . g:ext_small_f_move_start_key . ' :call ExtFMoveStart(0, "o")<CR>'
+exe 'onoremap ' . g:ext_large_f_move_start_key . ' :call ExtFMoveStart(1, "o")<CR>'
 
 function! ExtFMoveStart(is_rev, current_mode)
   if g:ext_f_move_enable == 0
@@ -76,14 +79,17 @@ function! ExtFMoveStart(is_rev, current_mode)
   endif
   let s:is_reverse   = a:is_rev
   let s:current_mode = a:current_mode
+  let s:operator     = v:operator
 
-  call s:startFMove()
+  call s:startFMoveMode()
 
 endfunction
 
-function! s:startFMove()
+function! s:startFMoveMode()
 
   highlight FMoveCursorColor ctermbg=green
+
+  if s:current_mode == 'o' | exe "normal! \<Esc>v\<Esc>" | endif
 
   while 1
     call s:showModeMessage()
@@ -92,6 +98,7 @@ function! s:startFMove()
     let cursor_mark = matchadd("FMoveCursorColor", '\%#', -1)
 
     if c == g:ext_f_move_keycode_finish || (g:ext_f_move_finish_with_escape == 1 && c == g:ext_f_move_keycode_escape)
+      if s:current_mode == 'o' | exe "normal! \<Esc>gv" . s:operator | endif
       break
     endif
 
@@ -99,7 +106,7 @@ function! s:startFMove()
       let s:is_reverse = !s:is_reverse
     endif
 
-    if s:current_mode == 'v' | exe "normal! \<Esc>gv" | endif
+    if s:current_mode == 'v' || s:current_mode == 'o' | exe "normal! \<Esc>gv" | endif
 
     exe 'normal! ' . (!s:is_reverse ? 'f' : 'F') . s:getKeyAlias(c)
 
