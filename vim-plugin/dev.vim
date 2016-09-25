@@ -1,3 +1,8 @@
+"TODO
+" - オペレータ待機モードのキャンセル処理追加
+" - プラグイン化
+" - コードの整理(整形およびコメント整理)
+" - カウンター指定時の修正
 "---------------------------------------------------
 " Ext F Move
 "---------------------------------------------------
@@ -42,6 +47,13 @@ let g:ext_f_move_keycode_escape = get(g:, 'ext_f_move_keycode_escape', s:default
 " if <ESC> key downed, ext f mode
 let g:ext_f_move_finish_with_escape = get(g:, 'ext_f_move_finish_with_escape', 1)
 
+let g:ext_f_move_mark_cursor_color  = get(g:, 'ext_f_move_mark_cursor_color', 'Cursor')
+
+" 仮設定値
+  hi MyCursor term=reverse cterm=reverse
+  let g:ext_f_move_mark_cursor_color  = 'MyCursor'
+"
+
 let s:is_reverse   = 0
 let s:current_mode = "n"
 let s:operator     = ""
@@ -59,11 +71,11 @@ function! s:getchar()
 endfunction
 
 function! s:showModeMessage()
-    if s:is_reverse == 0
-      echo '[f move mode]... "'.s:label_finish.'": End'
-    else
-      echo '[F move mode]... "'.s:label_finish.'": End'
-    endif
+  let l:f_type   = s:is_reverse == 0 ? 'f' : 'F'
+  let l:mode     = s:current_mode == 'v' ? ' VISUAL' : ''
+  let l:operator = s:current_mode == 'o' ? s:operator : ''
+
+  echo '-- ' . l:operator . l:f_type . ' MOVE' . l:mode . ' --'
 endfunction
 
 exe 'nnoremap ' . g:ext_small_f_move_start_key . ' :call ExtFMoveStart(0, "n")<CR>'
@@ -81,13 +93,13 @@ function! ExtFMoveStart(is_rev, current_mode)
   let s:current_mode = a:current_mode
   let s:operator     = v:operator
 
+  exe 'highlight link FMoveCursorColor ' . g:ext_f_move_mark_cursor_color
+
   call s:startFMoveMode()
 
 endfunction
 
 function! s:startFMoveMode()
-
-  highlight FMoveCursorColor ctermbg=green
 
   if s:current_mode == 'o' | exe "normal! \<Esc>v\<Esc>" | endif
 
@@ -95,7 +107,7 @@ function! s:startFMoveMode()
     call s:showModeMessage()
 
     let c = s:getchar()
-    let cursor_mark = matchadd("FMoveCursorColor", '\%#', -1)
+    let cursor_mark = matchadd("FMoveCursorColor", '\%#', 999)
 
     if c == g:ext_f_move_keycode_finish || (g:ext_f_move_finish_with_escape == 1 && c == g:ext_f_move_keycode_escape)
       if s:current_mode == 'o' | exe "normal! \<Esc>gv" . s:operator | endif
@@ -115,7 +127,7 @@ function! s:startFMoveMode()
 
   echo ""
   call matchdelete(cursor_mark)
-  highlight clear FMoveCursorColor
+  highlight link FMoveCursorColor NONE
   redraw
 endfunction
 
