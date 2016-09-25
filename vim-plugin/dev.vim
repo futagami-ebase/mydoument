@@ -1,6 +1,7 @@
 "TODO
 " - オペレータ待機モードのキャンセル処理追加
 " - プラグイン化
+" - 移動時の表示処理設定
 " - コードの整理(整形およびコメント整理)
 " - カウンター指定時の修正
 "---------------------------------------------------
@@ -8,50 +9,49 @@
 "---------------------------------------------------
 "
 " ========================================
-" start 'ext f move mode' key
-" f or g:ext_f_move_ defined by .vimrc
+" start 'f monitor' key
+" f or g:f_monitor_ defined by .vimrc
 "
 " If you don't need this function,
 " define global variable below in .vimrc
 "
-" let g:ext_f_move_enable
+" let g:f_monitor_enable
 "
-" keymap of [f move mode]
+" keymap of [f monitor]
 " <C-F> : orientation switch key
-" <Enter> or <Esc> : End ext f move mode
+" <Enter> or <Esc> : End f monitor
 
 "let s:save_cpo = &cpo
 "set cpo&vim
 
-" default start ext f move mode key
-let s:default_small_f_start_key = 'f'
-let s:default_large_f_start_key = 'F'
+" default start key
+let s:default_small_f_monitor_start_key = 'f'
+let s:default_large_f_monitor_start_key = 'F'
 
-" If you define 'g:ext_f_move_start_key' in .vimrc, 
-" will be started resize window by 'g:win_resizer_start_key' 
-let g:ext_small_f_move_start_key = get(g:, 'ext_small_f_move_start_key', s:default_small_f_start_key)
-let g:ext_large_f_move_start_key = get(g:, 'ext_large_f_move_start_key', s:default_large_f_start_key)
-let g:ext_f_move_enable          = get(g:, 'ext_f_move_enable', 1)
+" If you define 'g:f_monitor_start_key' in .vimrc,
+let g:small_f_monitor_start_key = get(g:, 'small_f_monitor_start_key', s:default_small_f_monitor_start_key)
+let g:large_f_monitor_start_key = get(g:, 'large_f_monitor_start_key', s:default_large_f_monitor_start_key)
+let g:f_monitor_enable          = get(g:, 'f_monitor_enable', 1)
 
-" ext f mode key mapping
+" f mode key mapping
 let s:default_keycode = {
              \           'switch':'6',
              \           'finish':'13',
              \           'escape':'27',
              \          }
 
-let g:ext_f_move_keycode_switch = get(g:, 'ext_f_move_keycode_switch', s:default_keycode['switch'])
-let g:ext_f_move_keycode_finish = get(g:, 'ext_f_move_keycode_finish', s:default_keycode['finish'])
-let g:ext_f_move_keycode_escape = get(g:, 'ext_f_move_keycode_escape', s:default_keycode['escape'])
+let g:f_monitor_keycode_switch = get(g:, 'f_monitor_keycode_switch', s:default_keycode['switch'])
+let g:f_monitor_keycode_finish = get(g:, 'f_monitor_keycode_finish', s:default_keycode['finish'])
+let g:f_monitor_keycode_escape = get(g:, 'f_monitor_keycode_escape', s:default_keycode['escape'])
 
-" if <ESC> key downed, ext f mode
-let g:ext_f_move_finish_with_escape = get(g:, 'ext_f_move_finish_with_escape', 1)
+" if <ESC> key downed, f mode
+let g:f_monitor_finish_with_escape = get(g:, 'f_monitor_finish_with_escape', 1)
 
-let g:ext_f_move_mark_cursor_color  = get(g:, 'ext_f_move_mark_cursor_color', 'Cursor')
+let g:f_monitor_mark_cursor_color  = get(g:, 'f_monitor_mark_cursor_color', 'Cursor')
 
 " 仮設定値
   hi MyCursor term=reverse cterm=reverse
-  let g:ext_f_move_mark_cursor_color  = 'MyCursor'
+  let g:f_monitor_mark_cursor_color  = 'MyCursor'
 "
 
 let s:is_reverse   = 0
@@ -78,22 +78,22 @@ function! s:showModeMessage()
   echo '-- ' . l:operator . l:f_type . ' MOVE' . l:mode . ' --'
 endfunction
 
-exe 'nnoremap ' . g:ext_small_f_move_start_key . ' :call ExtFMoveStart(0, "n")<CR>'
-exe 'nnoremap ' . g:ext_large_f_move_start_key . ' :call ExtFMoveStart(1, "n")<CR>'
-exe 'xnoremap ' . g:ext_small_f_move_start_key . ' :call ExtFMoveStart(0, "v")<CR>'
-exe 'xnoremap ' . g:ext_large_f_move_start_key . ' :call ExtFMoveStart(1, "v")<CR>'
-exe 'onoremap ' . g:ext_small_f_move_start_key . ' :call ExtFMoveStart(0, "o")<CR>'
-exe 'onoremap ' . g:ext_large_f_move_start_key . ' :call ExtFMoveStart(1, "o")<CR>'
+exe 'nnoremap ' . g:small_f_monitor_start_key . ' :call ExtFMoveStart(0, "n")<CR>'
+exe 'nnoremap ' . g:large_f_monitor_start_key . ' :call ExtFMoveStart(1, "n")<CR>'
+exe 'xnoremap ' . g:small_f_monitor_start_key . ' :call ExtFMoveStart(0, "v")<CR>'
+exe 'xnoremap ' . g:large_f_monitor_start_key . ' :call ExtFMoveStart(1, "v")<CR>'
+exe 'onoremap ' . g:small_f_monitor_start_key . ' :call ExtFMoveStart(0, "o")<CR>'
+exe 'onoremap ' . g:large_f_monitor_start_key . ' :call ExtFMoveStart(1, "o")<CR>'
 
 function! ExtFMoveStart(is_rev, current_mode)
-  if g:ext_f_move_enable == 0
+  if g:f_monitor_enable == 0
     return
   endif
   let s:is_reverse   = a:is_rev
   let s:current_mode = a:current_mode
   let s:operator     = v:operator
 
-  exe 'highlight link FMoveCursorColor ' . g:ext_f_move_mark_cursor_color
+  exe 'highlight link FMoveCursorColor ' . g:f_monitor_mark_cursor_color
 
   call s:startFMoveMode()
 
@@ -109,12 +109,12 @@ function! s:startFMoveMode()
     let c = s:getchar()
     let cursor_mark = matchadd("FMoveCursorColor", '\%#', 999)
 
-    if c == g:ext_f_move_keycode_finish || (g:ext_f_move_finish_with_escape == 1 && c == g:ext_f_move_keycode_escape)
+    if c == g:f_monitor_keycode_finish || (g:f_monitor_finish_with_escape == 1 && c == g:f_monitor_keycode_escape)
       if s:current_mode == 'o' | exe "normal! \<Esc>gv" . s:operator | endif
       break
     endif
 
-    if c == g:ext_f_move_keycode_switch
+    if c == g:f_monitor_keycode_switch
       let s:is_reverse = !s:is_reverse
     endif
 
@@ -141,5 +141,5 @@ function! s:getKeyAlias(code)
   return alias
 endfunction
 
-let s:label_finish = s:getKeyAlias(g:ext_f_move_keycode_finish)
+let s:label_finish = s:getKeyAlias(g:f_monitor_keycode_finish)
 "let &cpo = s:save_cpo
