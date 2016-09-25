@@ -1,5 +1,4 @@
 "TODO
-" - オペレータ待機モードのキャンセル処理追加
 " - プラグイン化
 " - 移動時の表示処理設定
 " - コードの整理(整形およびコメント整理)
@@ -44,10 +43,8 @@ let g:f_monitor_keycode_switch = get(g:, 'f_monitor_keycode_switch', s:default_k
 let g:f_monitor_keycode_finish = get(g:, 'f_monitor_keycode_finish', s:default_keycode['finish'])
 let g:f_monitor_keycode_escape = get(g:, 'f_monitor_keycode_escape', s:default_keycode['escape'])
 
-" if <ESC> key downed, f mode
-let g:f_monitor_finish_with_escape = get(g:, 'f_monitor_finish_with_escape', 1)
-
-let g:f_monitor_mark_cursor_color  = get(g:, 'f_monitor_mark_cursor_color', 'Cursor')
+" highright configs
+let g:f_monitor_mark_cursor_color = get(g:, 'f_monitor_mark_cursor_color', 'Cursor')
 
 " 仮設定値
   hi MyCursor term=reverse cterm=reverse
@@ -78,14 +75,14 @@ function! s:showModeMessage()
   echo '-- ' . l:operator . l:f_type . ' MOVE' . l:mode . ' --'
 endfunction
 
-exe 'nnoremap ' . g:small_f_monitor_start_key . ' :call ExtFMoveStart(0, "n")<CR>'
-exe 'nnoremap ' . g:large_f_monitor_start_key . ' :call ExtFMoveStart(1, "n")<CR>'
-exe 'xnoremap ' . g:small_f_monitor_start_key . ' :call ExtFMoveStart(0, "v")<CR>'
-exe 'xnoremap ' . g:large_f_monitor_start_key . ' :call ExtFMoveStart(1, "v")<CR>'
-exe 'onoremap ' . g:small_f_monitor_start_key . ' :call ExtFMoveStart(0, "o")<CR>'
-exe 'onoremap ' . g:large_f_monitor_start_key . ' :call ExtFMoveStart(1, "o")<CR>'
+exe 'nnoremap ' . g:small_f_monitor_start_key . ' :call MonitorFStart(0, "n")<CR>'
+exe 'nnoremap ' . g:large_f_monitor_start_key . ' :call MonitorFStart(1, "n")<CR>'
+exe 'xnoremap ' . g:small_f_monitor_start_key . ' :call MonitorFStart(0, "v")<CR>'
+exe 'xnoremap ' . g:large_f_monitor_start_key . ' :call MonitorFStart(1, "v")<CR>'
+exe 'onoremap ' . g:small_f_monitor_start_key . ' :call MonitorFStart(0, "o")<CR>'
+exe 'onoremap ' . g:large_f_monitor_start_key . ' :call MonitorFStart(1, "o")<CR>'
 
-function! ExtFMoveStart(is_rev, current_mode)
+function! MonitorFStart(is_rev, current_mode)
   if g:f_monitor_enable == 0
     return
   endif
@@ -107,9 +104,11 @@ function! s:startFMoveMode()
     call s:showModeMessage()
 
     let c = s:getchar()
-    let cursor_mark = matchadd("FMoveCursorColor", '\%#', 999)
+    let l:cursor_mark = matchadd("FMoveCursorColor", '\%#', 999)
 
-    if c == g:f_monitor_keycode_finish || (g:f_monitor_finish_with_escape == 1 && c == g:f_monitor_keycode_escape)
+    if c == g:f_monitor_keycode_escape | break | endif
+
+    if c == g:f_monitor_keycode_finish
       if s:current_mode == 'o' | exe "normal! \<Esc>gv" . s:operator | endif
       break
     endif
@@ -126,7 +125,7 @@ function! s:startFMoveMode()
   endwhile
 
   echo ""
-  call matchdelete(cursor_mark)
+  call matchdelete(l:cursor_mark)
   highlight link FMoveCursorColor NONE
   redraw
 endfunction
