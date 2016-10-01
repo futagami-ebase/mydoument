@@ -2,7 +2,6 @@
 " - プラグイン化
 " - 移動時の表示処理設定
 " - コードの整理(整形およびコメント整理)
-" - カウンター指定時の修正
 "---------------------------------------------------
 " Ext F Move
 "---------------------------------------------------
@@ -75,12 +74,13 @@ function! s:showModeMessage()
   echo '-- ' . l:operator . l:f_type . ' MOVE' . l:mode . ' --'
 endfunction
 
-exe 'nnoremap ' . g:small_f_monitor_start_key . ' :call MonitorFStart(0, "n")<CR>'
-exe 'nnoremap ' . g:large_f_monitor_start_key . ' :call MonitorFStart(1, "n")<CR>'
-exe 'xnoremap ' . g:small_f_monitor_start_key . ' :call MonitorFStart(0, "v")<CR>'
-exe 'xnoremap ' . g:large_f_monitor_start_key . ' :call MonitorFStart(1, "v")<CR>'
-exe 'onoremap ' . g:small_f_monitor_start_key . ' :call MonitorFStart(0, "o")<CR>'
-exe 'onoremap ' . g:large_f_monitor_start_key . ' :call MonitorFStart(1, "o")<CR>'
+command! -nargs=+ CallMonitorFStart call MonitorFStart(<args>)
+exe 'nnoremap ' . g:small_f_monitor_start_key . ' :CallMonitorFStart 0, "n"<CR>'
+exe 'nnoremap ' . g:large_f_monitor_start_key . ' :CallMonitorFStart 1, "n"<CR>'
+exe 'xnoremap ' . g:small_f_monitor_start_key . ' :CallMonitorFStart 0, "v"<CR>'
+exe 'xnoremap ' . g:large_f_monitor_start_key . ' :CallMonitorFStart 1, "v"<CR>'
+exe 'onoremap ' . g:small_f_monitor_start_key . ' :CallMonitorFStart 0, "o"<CR>'
+exe 'onoremap ' . g:large_f_monitor_start_key . ' :CallMonitorFStart 1, "o"<CR>'
 
 function! MonitorFStart(is_rev, current_mode)
   if g:f_monitor_enable == 0
