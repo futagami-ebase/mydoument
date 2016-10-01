@@ -75,12 +75,12 @@ function! s:showModeMessage()
 endfunction
 
 command! -nargs=+ CallMonitorFStart call MonitorFStart(<args>)
-exe 'nnoremap ' . g:small_f_monitor_start_key . ' :CallMonitorFStart 0, "n"<CR>'
-exe 'nnoremap ' . g:large_f_monitor_start_key . ' :CallMonitorFStart 1, "n"<CR>'
-exe 'xnoremap ' . g:small_f_monitor_start_key . ' :CallMonitorFStart 0, "v"<CR>'
-exe 'xnoremap ' . g:large_f_monitor_start_key . ' :CallMonitorFStart 1, "v"<CR>'
-exe 'onoremap ' . g:small_f_monitor_start_key . ' :CallMonitorFStart 0, "o"<CR>'
-exe 'onoremap ' . g:large_f_monitor_start_key . ' :CallMonitorFStart 1, "o"<CR>'
+exe 'nnoremap ' . g:small_f_monitor_start_key . ' <Esc>:CallMonitorFStart 0, "n"<CR>'
+exe 'nnoremap ' . g:large_f_monitor_start_key . ' <Esc>:CallMonitorFStart 1, "n"<CR>'
+exe 'xnoremap ' . g:small_f_monitor_start_key . ' <Esc>:CallMonitorFStart 0, "v"<CR>'
+exe 'xnoremap ' . g:large_f_monitor_start_key . ' <Esc>:CallMonitorFStart 1, "v"<CR>'
+exe 'onoremap ' . g:small_f_monitor_start_key . ' <Esc>:CallMonitorFStart 0, "o"<CR>'
+exe 'onoremap ' . g:large_f_monitor_start_key . ' <Esc>:CallMonitorFStart 1, "o"<CR>'
 
 function! MonitorFStart(is_rev, current_mode)
   if g:f_monitor_enable == 0
@@ -106,7 +106,10 @@ function! s:startFMoveMode()
     let c = s:getchar()
     let l:cursor_mark = matchadd("FMoveCursorColor", '\%#', 999)
 
-    if c == g:f_monitor_keycode_escape | break | endif
+    if c == g:f_monitor_keycode_escape
+      if s:current_mode == 'o' | exe "normal! \<Esc>" | endif
+      break
+    endif
 
     if c == g:f_monitor_keycode_finish
       if s:current_mode == 'o' | exe "normal! \<Esc>gv" . s:operator | endif
