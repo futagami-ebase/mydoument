@@ -1,6 +1,5 @@
 "TODO
 " - プラグイン化
-" - 移動時の表示処理設定
 " - コードの整理(整形およびコメント整理)
 "---------------------------------------------------
 " Ext F Move
@@ -44,10 +43,13 @@ let g:f_monitor_keycode_escape = get(g:, 'f_monitor_keycode_escape', s:default_k
 
 " highright configs
 let g:f_monitor_mark_cursor_color = get(g:, 'f_monitor_mark_cursor_color', 'Cursor')
+let g:f_monitor_mark_cursor_line  = get(g:, 'f_monitor_mark_cursor_line' , 'CursorLine')
 
 " 仮設定値
   hi MyCursor term=reverse cterm=reverse
-  let g:f_monitor_mark_cursor_color  = 'MyCursor'
+  hi MyCursorLine term=underline cterm=underline ctermbg=234
+  let g:f_monitor_mark_cursor_color = 'MyCursor'
+  let g:f_monitor_mark_cursor_line  = 'MyCursorLine'
 "
 
 let s:is_reverse   = 0
@@ -91,6 +93,7 @@ function! MonitorFStart(is_rev, current_mode)
   let s:operator     = v:operator
 
   exe 'highlight link FMoveCursorColor ' . g:f_monitor_mark_cursor_color
+  exe 'highlight link FMoveCursorLine  ' . g:f_monitor_mark_cursor_line
 
   call s:startFMoveMode()
 
@@ -100,11 +103,16 @@ function! s:startFMoveMode()
 
   if s:current_mode == 'o' | exe "normal! \<Esc>v\<Esc>" | endif
 
+  let l:cursor_line = matchadd("FMoveCursorLine",  '\%' . line(".") . 'l.*', 999)
+
   while 1
+
     call s:showModeMessage()
 
-    let c = s:getchar()
     let l:cursor_mark = matchadd("FMoveCursorColor", '\%#', 999)
+    redraw
+
+    let c = s:getchar()
 
     if c == g:f_monitor_keycode_escape
       if s:current_mode == 'o' | exe "normal! \<Esc>" | endif
@@ -124,12 +132,13 @@ function! s:startFMoveMode()
 
     exe 'normal! ' . (!s:is_reverse ? 'f' : 'F') . s:getKeyAlias(c)
 
-    redraw
   endwhile
 
   echo ""
   call matchdelete(l:cursor_mark)
+  call matchdelete(l:cursor_line)
   highlight link FMoveCursorColor NONE
+  highlight link FMoveCursorLine  NONE
   redraw
 endfunction
 
