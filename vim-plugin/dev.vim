@@ -21,25 +21,15 @@
 "let s:save_cpo = &cpo
 "set cpo&vim
 
-" default start key
-let s:default_small_f_monitor_start_key = 'f'
-let s:default_large_f_monitor_start_key = 'F'
-
 " If you define 'g:f_monitor_start_key' in .vimrc,
-let g:small_f_monitor_start_key = get(g:, 'small_f_monitor_start_key', s:default_small_f_monitor_start_key)
-let g:large_f_monitor_start_key = get(g:, 'large_f_monitor_start_key', s:default_large_f_monitor_start_key)
+let g:small_f_monitor_start_key = get(g:, 'small_f_monitor_start_key', 'mf')
+let g:large_f_monitor_start_key = get(g:, 'large_f_monitor_start_key', 'mF')
 let g:f_monitor_enable          = get(g:, 'f_monitor_enable', 1)
 
-" f mode key mapping
-let s:default_keycode = {
-             \           'switch':'6',
-             \           'finish':'13',
-             \           'escape':'27',
-             \          }
-
-let g:f_monitor_keycode_switch = get(g:, 'f_monitor_keycode_switch', s:default_keycode['switch'])
-let g:f_monitor_keycode_finish = get(g:, 'f_monitor_keycode_finish', s:default_keycode['finish'])
-let g:f_monitor_keycode_escape = get(g:, 'f_monitor_keycode_escape', s:default_keycode['escape'])
+" f mode operate keys
+let g:f_monitor_keycode_switch = get(g:, 'f_monitor_keycode_switch', 6)
+let g:f_monitor_keycode_finish = get(g:, 'f_monitor_keycode_finish', 13)
+let g:f_monitor_keycode_escape = get(g:, 'f_monitor_keycode_escape', 27)
 
 " highright configs
 let g:f_monitor_mark_cursor_color = get(g:, 'f_monitor_mark_cursor_color', 'Cursor')
