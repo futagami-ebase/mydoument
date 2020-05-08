@@ -1,0 +1,5 @@
+## スクリプトサンプル作成予定
+一旦は以下を実装予定
+ - userContent/配下に設定ファイルを配置し、そこでi/o処理を行う
+ - pipelineでの例外発生時の処理
+ - email extのbody templateとファイル添付処理
