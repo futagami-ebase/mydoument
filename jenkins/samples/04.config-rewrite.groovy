@@ -6,6 +6,7 @@ def CONFIG_PATH_PRO = env.JENKINS_HOME + "/userContent/configs/config.properties
 def CONFIG_PATH_NO  = env.JENKINS_HOME + "/userContent/configs/sample-version"
 
 def datas
+def type = "all"
 
 pipeline {
     agent any
@@ -16,7 +17,7 @@ pipeline {
                 script{
                     datas = readYaml file: "${CONFIG_PATH_YML}"
                     println(datas)
-                    for (host in datas.root.hosts) {
+                    for (host in datas.root.hosts."${type}") {
                         build(
                             job: '00.sub',
                             parameters: [
