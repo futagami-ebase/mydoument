@@ -12,31 +12,38 @@ pipeline {
     agent any
 
     stages {
+        stage('read write sample-version') {
+            steps {
+                script {
+                    def line = readFile(file: CONFIG_PATH_NO)
+                    writeFile(file: CONFIG_PATH_NO, text: line + "-1")
+                    echo line
+                    echo readFile(file: CONFIG_PATH_NO)
+                }
+            }
+        }
         stage('read yaml') {
             steps {
                 script{
                     datas = readYaml file: "${CONFIG_PATH_YML}"
                     println(datas)
                     for (host in datas.root.hosts."${type}") {
-                        build(
-                            job: '00.sub',
-                            parameters: [
-                                string(name: 'name', value: host.name),
-                                string(name: 'ip', value: host.ip)
-                            ]
-                        )
                         println(host.name)
                         println(host.ip)
+                        // ビルドに時間がかかるので、コメントアウト
+                        // build(
+                        //     job: '00.sub',
+                        //     parameters: [
+                        //         string(name: 'name', value: host.name),
+                        //         string(name: 'ip', value: host.ip)
+                        //     ]
+                        // )
                     }
                 }
             }
         }
-        // stage('read write sample-version') {
-        //     steps {
-        //          archiveArtifacts fileName
-        //     }
-        // }
 
+        // ビルド時間短縮のため、コメントアウト
         // stage('read properties') {
         //     steps {
         //         script{
