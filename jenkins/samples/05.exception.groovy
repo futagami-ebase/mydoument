@@ -1,7 +1,10 @@
 // 例外/エラー発生時の処理実装
 // @param boolean isStageSuccess
 // @param boolean isStepSuccess
-// @param string  errorType
+// @param string  StepErrorType
+def callThrow() {
+    throw new Exception("simple throw Exception")
+}
 
 pipeline {
     agent any
@@ -13,9 +16,15 @@ pipeline {
                     if ( isStepSuccess.toBoolean() ) {
                         echo "Step Success"
                     } else {
-                        echo "Step Failed"
                         // ここで終了し、後続のstageは実行しない
-                        sh '[ 1 -eq 0 ]'
+                        echo "Step Failed"
+                        if (stepErrorType == "ShellExitCode=1") {
+                            sh '[ 1 -eq 0 ]'
+                        }
+                        if (stepErrorType == "ThrowException") {
+                            callThrow()
+                        }
+                        echo "Code Miss!!"
                     }
                 }
             }
