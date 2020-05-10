@@ -15,6 +15,7 @@ pipeline {
                         echo "Step Success"
                     } else {
                         echo "Step Error"
+                        sh "exit 1"
                     }
                 }
             }
@@ -48,5 +49,6 @@ void sendMail(String subject, String body) {
     emailext mimeType: 'text/html',
         to: mailRecipients, replyTo: mailRecipients,
         subject: subject, body: body,
+        attachLog: true, 
         recipientProviders: [[$class: 'CulpritsRecipientProvider']]
 }
