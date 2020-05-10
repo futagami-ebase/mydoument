@@ -1,3 +1,9 @@
+// メール送信サンプル
+// @use plugin Email Extension
+// @use plugin Email Extension Template
+// @param boolean isSuccess
+// 予め, templateファイルをemail-templatesに配置しておく必要あり
+
 pipeline {
     agent any
 
@@ -5,17 +11,42 @@ pipeline {
         stage('send mail') {
             steps {
                 script {
-                    def mailRecipients = "develop@example.com"
-                    def jobName = currentBuild.fullDisplayName
-
-                    emailext body: '''これはテストです''',
-                        mimeType: 'text/html',
-                        subject: "[Jenkins TEST] ${jobName}",
-                        to: "${mailRecipients}",
-                        replyTo: "${mailRecipients}",
-                        recipientProviders: [[$class: 'CulpritsRecipientProvider']]
+                    if ( isSuccess.toBoolean() ) {
+                        echo "Step Success"
+                    } else {
+                        echo "Step Error"
+                    }
                 }
+            }
+            post {
+                success { 
+                    script {
+                        sendMail(
+                            "[SUCCESS] " + currentBuild.fullDisplayName, 
+                            "test"
+                        )
+                    }
+                }
+                unsuccessful { 
+                    script {
+                        sendMail(
+                            "[Failed] " + currentBuild.fullDisplayName, 
+                            "error test"
+                        )
+                    }
+                }
+                // failure { echo 'stage post failure' }
+                // always { echo 'stage post always' }
             }
         }
     }
+}
+
+void sendMail(String subject, String body) {
+    def mailRecipients = "develop@example.com"
+
+    emailext mimeType: 'text/html',
+        to: mailRecipients, replyTo: mailRecipients,
+        subject: subject, body: body,
+        recipientProviders: [[$class: 'CulpritsRecipientProvider']]
 }
