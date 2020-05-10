@@ -1,7 +1,9 @@
 // 例外/エラー発生時の処理実装
 // @param boolean isStageSuccess
 // @param boolean isStepSuccess
-// @param string  StepErrorType
+// @param boolean isErrorHandle1
+// @param boolean isErrorHandle2
+// @param choice  StepErrorType
 def callThrow() {
     throw new Exception("simple throw Exception")
 }
@@ -24,22 +26,64 @@ pipeline {
                         if (stepErrorType == "ThrowException") {
                             callThrow()
                         }
+                        // ここに来たら、実装ミス
                         echo "Code Miss!!"
                     }
                 }
-                // // stepsではpost利用不可
-                // post {
-                //     success { echo 'steps post success' }
-                //     unsuccessful { echo 'steps post unsuccessful' }
-                //     failure { echo 'steps post failure' }
-                //     always { echo 'steps post always' }
-                // }
             }
             post {
                 success { echo 'stage post success' }
                 unsuccessful { echo 'stage post unsuccessful' }
                 failure { echo 'stage post failure' }
                 always { echo 'stage post always' }
+            }
+        }
+        stage('Step ErrorHandle1') {
+            when {
+                expression { isErrorHandle1.toBoolean() }
+            }
+            steps {
+                script {
+                    catchError(message: "catch error message") {
+                        echo "catch error"
+                    }
+                    // ここで終了し、後続のstageは実行しない（postで処理しても同様）
+                    echo "Start ErrorHandle1"
+                    if (stepErrorType == "ShellExitCode=1") {
+                        sh '[ 1 -eq 0 ]'
+                    }
+                    if (stepErrorType == "ThrowException") {
+                        callThrow()
+                    }
+                    // ここに来たら、実装ミス
+                    echo "Code Miss!!"
+                }
+            }
+        }
+        stage('Step ErrorHandle2') {
+            when {
+                expression { isErrorHandle2.toBoolean() }
+            }
+            steps {
+                script {
+                    try {
+                        // ここで終了せず、後続のstageは実行する
+                        echo "Start ErrorHandle2"
+                        if (stepErrorType == "ShellExitCode=1") {
+                            sh '[ 1 -eq 0 ]'
+                        }
+                        if (stepErrorType == "ThrowException") {
+                            callThrow()
+                        }
+                        // ここに来たら、実装ミス
+                        echo "Code Miss!!"
+                    } catch(err) {
+                        echo "Error: ${err}"
+
+                    } finally {
+                        echo "Finally"
+                    }
+                }
             }
         }
         stage('Stage Failed') {
